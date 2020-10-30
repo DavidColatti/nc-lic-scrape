@@ -1,4 +1,6 @@
+const fs = require("fs");
 const axios = require("axios");
+const { convertArrayToCSV } = require("convert-array-to-csv");
 
 const main = async (id, count) => {
   const results = [];
@@ -9,7 +11,7 @@ const main = async (id, count) => {
         `https://api.nclbgc.org/v3/Qualifier?id=${id}`
       );
 
-      res.data.forEach((each) => {
+      res.data.forEach(async (each) => {
         const value = {
           id: each.qualifierId,
           business_name: each.name,
@@ -21,14 +23,22 @@ const main = async (id, count) => {
 
         results.push(value);
 
-        console.log(`Successfully scraped ${id}`);
+        console.log(`${i}: Successfully scraped ${id}`);
+
+        const csv = await convertArrayToCSV(results);
+
+        fs.writeFile("./output.csv", csv, (e) => {
+          if (e) {
+            console.log(e);
+          }
+        });
       });
     } catch (e) {
-      console.log(`Issue scraping ${id}`);
+      console.log(`${i}: Issue scraping ${id}`);
     }
 
     id++;
   }
 };
 
-main(32308, 5);
+main(32308, 5000);
