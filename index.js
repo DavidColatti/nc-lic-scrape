@@ -8,30 +8,31 @@ const main = async (id, count) => {
   for (let i = 0; i < count; i++) {
     try {
       const res = await axios.get(
-        `https://api.nclbgc.org/v3/Qualifier?id=${id}`
+        `https://api.nclbgc.org/v3/License?number=${id}`
       );
 
-      res.data.forEach(async (each) => {
-        const value = {
-          id: each.qualifierId,
-          business_name: each.name,
-          phone_number: each.telephone,
-          owner_name: each.qualifierName,
-          zip: each.zip,
-          status: each.status,
-        };
+      const value = {
+        lic_number: res.data.number,
+        business_name: res.data.name1,
+        business_dba: res.data.name2,
+        phone_number: res.data.telephone,
+        qualifier: res.data.qualifiers[0],
+        zip: res.data.zip,
+        renewal_date: res.data.renewalDate,
+        classification: res.data.classifications[0],
+        status: res.data.status,
+      };
 
-        results.push(value);
+      results.push(value);
 
-        console.log(`${i}: Successfully scraped ${id}`);
+      console.log(`${i}: Successfully scraped ${id}`);
 
-        const csv = await convertArrayToCSV(results);
+      const csv = await convertArrayToCSV(results);
 
-        fs.writeFile("./output.csv", csv, (e) => {
-          if (e) {
-            console.log(e);
-          }
-        });
+      fs.writeFile("./output.csv", csv, (e) => {
+        if (e) {
+          console.log(e);
+        }
       });
     } catch (e) {
       console.log(`${i}: Issue scraping ${id}`);
@@ -41,4 +42,4 @@ const main = async (id, count) => {
   }
 };
 
-main(32308, 5000);
+main(83294, 5000);
